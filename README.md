@@ -29,11 +29,12 @@ Install Protocol Buffers v2.6.1
 0. Create a catkin workspace
 1. Clone the package to the src folder
 2. Comment the following lines in CMakeLists.txt in the msgs folder of pgm_map_creator and save it.(Edit it using gedit)
-``` #${PROTOBUF_IMPORT_DIRS}/vector2d.proto
+``` 
+    #${PROTOBUF_IMPORT_DIRS}/vector2d.proto
     #${PROTOBUF_IMPORT_DIRS}/header.proto
     #${PROTOBUF_IMPORT_DIRS}/time.proto
 ```
-3. `catkin_make` and source `devel/setup.bash`
+3. `catkin_make` and `source devel/setup.bash`
 
 ### Add the map and insert the plugin
 1. Add your world file to world folder
