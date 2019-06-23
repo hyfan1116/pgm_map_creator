@@ -37,7 +37,7 @@ Install Protocol Buffers v2.6.1
 4. `catkin_make` and `source devel/setup.bash`
 
 ### Add the map and insert the plugin
-1. Add your world file to world folder
+1. Add your world file to world folder in the pgm_map_creator folder
 2. Add this line at the end of the world file, before `</world>` tag:
 `<plugin filename="libcollision_map_creator.so" name="collision_map_creator"/>`
 
