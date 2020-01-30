@@ -32,7 +32,7 @@ class CollisionMapCreator : public WorldPlugin
     node = transport::NodePtr(new transport::Node());
     world = _parent;
     // Initialize the node with the world name
-    node->Init(world->GetName());
+    node->Init(world->Name());
     std::cout << "Subscribing to: " << "~/collision_map/command" << std::endl;
     commandSubscriber = node->Subscribe("~/collision_map/command",
       &CollisionMapCreator::create, this);
@@ -88,7 +88,7 @@ class CollisionMapCreator : public WorldPlugin
     start.Z(msg->height());
     end.Z(0.001);
 
-    gazebo::physics::PhysicsEnginePtr engine = world->GetPhysicsEngine();
+    gazebo::physics::PhysicsEnginePtr engine = world->Physics();
     engine->InitForThread();
     gazebo::physics::RayShapePtr ray =
       boost::dynamic_pointer_cast<gazebo::physics::RayShape>(
