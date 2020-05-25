@@ -1,3 +1,6 @@
+#define png_infopp_NULL (png_infopp)NULL
+#define int_p_NULL (int*)NULL
+
 #include <fstream>
 #include <iostream>
 #include <math.h>
