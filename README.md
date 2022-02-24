@@ -26,6 +26,46 @@ Tested on Ubuntu 16.04, ROS Kinetic, Boost 1.58
 ## Map Properties
 Currently, please update the argument value in launch/request_publisher.launch file.
 
+## Build using Docker without dealing with dependencies.
+
+Tested on docker-ce 20.10.12
+
++ First install docker-ce from [here](https://docs.docker.com/engine/install/ubuntu/)
+
++ Clone and change directory to this folder
+    ```bash
+    cd pgm_map_creator
+    ```
+
++ Build image with desired tag
+    ```bash
+    docker build -t <myimage> .
+    ```
++ Create your container
+    ```bash
+    docker run -t -d --name <mycontainer> <myimage:latest>
+    ```
++ Start bash shell in your container
+    ```bash
+    docker exec -it <mycontainer> /bin/bash
+    ```
++ Source your ros distro and workspace
+    ```bash
+    source /home/username/.bashrc
+    ```
++ Build
+    ```bash
+    cd /home/username/catkin_ws/ && catkin_make
+    ```
++ Find your container IP address
+  ```bash
+  sudo docker inspect -f "{{ .NetworkSettings.IPAddress }}" <mycontainer>
+  ```
++ Open up a new terminal for transfering your **.world** file to container with nautilus file manager. But make sure you have [SAMBA](https://ubuntu.com/tutorials/install-and-configure-samba#1-overview) installed on your computer.
+    ```bash
+    nautilus sftp://username@<container-ip-address>
+    ```
+
 ## Acknowledgements
 [Gazebo Custom Messages](http://gazebosim.org/wiki/Tutorials/1.9/custom_messages)
 [Gazebo Perfect Map Generator](https://github.com/koenlek/ros_lemtomap/tree/154c782cf8feb9112bc928e33a59728ca2192489/st_gazebo_perfect_map_generator)
