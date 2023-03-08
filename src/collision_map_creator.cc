@@ -1,8 +1,22 @@
+#define png_infopp_NULL (png_infopp)NULL
+#define int_p_NULL (int*)NULL
+// See https://github.com/ignf/gilviewer/issues/8
+#define png_bytep_NULL (png_bytep)NULL
+
 #include <fstream>
 #include <iostream>
 #include <math.h>
-#include <boost/gil/gil_all.hpp>
-#include <boost/gil/extension/io/png_dynamic_io.hpp>
+#include <boost/version.hpp>
+#if BOOST_VERSION / 100 % 1000 > 68
+    #include <boost/gil.hpp>
+#else
+    #include <boost/gil/gil_all.hpp>
+#endif
+#if BOOST_VERSION / 100 % 1000 > 67
+    #include <boost/gil/extension/io/png.hpp>
+#else
+    #include <boost/gil/extension/io/png_dynamic_io.hpp>
+#endif
 #include <boost/shared_ptr.hpp>
 #include <sdf/sdf.hh>
 #include <ignition/math/Vector3.hh>
@@ -32,7 +46,11 @@ class CollisionMapCreator : public WorldPlugin
     node = transport::NodePtr(new transport::Node());
     world = _parent;
     // Initialize the node with the world name
+#if GAZEBO_MAJOR_VERSION >= 8
+    node->Init(world->Name());
+#else
     node->Init(world->GetName());
+#endif
     std::cout << "Subscribing to: " << "~/collision_map/command" << std::endl;
     commandSubscriber = node->Subscribe("~/collision_map/command",
       &CollisionMapCreator::create, this);
@@ -88,7 +106,11 @@ class CollisionMapCreator : public WorldPlugin
     start.Z(msg->height());
     end.Z(0.001);
 
+#if GAZEBO_MAJOR_VERSION >= 8
+    gazebo::physics::PhysicsEnginePtr engine = world->Physics();
+#else
     gazebo::physics::PhysicsEnginePtr engine = world->GetPhysicsEngine();
+#endif
     engine->InitForThread();
     gazebo::physics::RayShapePtr ray =
       boost::dynamic_pointer_cast<gazebo::physics::RayShape>(

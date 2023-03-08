@@ -90,7 +90,9 @@ int main(int argc, char * argv[])
         gazebo::transport::PublisherPtr imagePub =
                 node->Advertise<collision_map_creator_msgs::msgs::CollisionMapRequest>(
                                                             "~/collision_map/command");
+        std::cout << "Waiting for connection ... " << std::endl;
         imagePub->WaitForConnection();
+        std::cout << "Connected." << std::endl;
         imagePub->Publish(request);
 
         gazebo::transport::fini();
