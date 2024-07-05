@@ -1,3 +1,4 @@
+syntax = "proto2";
 package collision_map_creator_msgs.msgs;
 import "vector2d.proto";
 

@@ -36,6 +36,7 @@ bool createVectorArray(const char * vectorString,
         size_t commaLoc = oneCornerStr.find(",");
         string x = oneCornerStr.substr(0,commaLoc);
         string y = oneCornerStr.substr(commaLoc + 1, oneCornerStr.length() - commaLoc);
+        std::cout << "(x,y): (" << x << ", " << y << ")\n";
         (*it)->set_x(atof(x.c_str()));
         (*it)->set_y(atof(y.c_str()));
     }
