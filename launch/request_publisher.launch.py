@@ -21,7 +21,7 @@ def generate_launch_description():
     ymin = '-30'
     ymax = '30'
     scan_height = '10'
-    resolution = '0.01'
+    resolution = '0.05'
   
     # 构建参数列表，用于传递给节点
     polygon_str = f"({xmin},{ymax})({xmax},{ymax})({xmax},{ymin})({xmin},{ymin})"  

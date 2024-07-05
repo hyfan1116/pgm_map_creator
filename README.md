@@ -10,7 +10,7 @@ Tested on Ubuntu 22.04, ROS2 Humble, Boost 1.58
 0. `mkdir -p colcon_ws/src && cd colcon_ws/src`
 0. `git clone {package}`
 0. `cd pgm_map_creator && mkdir build && cd build && cmake .. && make`
-0. `cd build && my_path=$(pwd)`
+0. `my_path=$(pwd)`
 0. `export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:${my_path}`
 
 > 尝试使用colcon build后，生成的共享库无法被正常加载至gzserver中，改用make方式成功加载
@@ -18,7 +18,7 @@ Tested on Ubuntu 22.04, ROS2 Humble, Boost 1.58
 ### Add the map and insert the plugin
 1. 将 world mode file 放到 world/下
 2. 打开world模型文件，在\</world\>前添加一行
-  `<plugin filename="libcollision_map_creator.so" name="collision_map_creator"/>`
+    `<plugin filename="libcollision_map_creator.so" name="collision_map_creator"/>`
 
 ```xml
    <!-- example -->
@@ -36,7 +36,7 @@ Tested on Ubuntu 22.04, ROS2 Humble, Boost 1.58
 
 ### Create the pgm map file
 1. Open a terminal, run gzerver with the map file
-  `gzserver src/pgm_map_creator/world/<map file> --verbose`
+    `gzserver src/pgm_map_creator/world/<map file> --verbose`
 
 > 可以使用gzclient查看模型文件记载结果，将启动gazebo显示
 >
