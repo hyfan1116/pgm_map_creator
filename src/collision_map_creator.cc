@@ -1,20 +1,21 @@
-#define png_infopp_NULL (png_infopp)NULL
-#define int_p_NULL (int*)NULL
-
 #include <fstream>
 #include <iostream>
-#include <math.h>
-#include <boost/gil/gil_all.hpp>
-#include <boost/gil/extension/io/png_dynamic_io.hpp>
+#include <cmath>
+#include <memory>
+
+#include <boost/gil.hpp>
+#include <boost/gil/extension/io/png.hpp>
 #include <boost/shared_ptr.hpp>
+
 #include <sdf/sdf.hh>
 #include <ignition/math/Vector3.hh>
 
-#include "gazebo/gazebo.hh"
-#include "gazebo/common/common.hh"
-#include "gazebo/msgs/msgs.hh"
-#include "gazebo/physics/physics.hh"
-#include "gazebo/transport/transport.hh"
+#include <gazebo/gazebo.hh>
+#include <gazebo/common/common.hh>
+#include <gazebo/msgs/msgs.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/transport.hh>
+
 #include "collision_map_request.pb.h"
 
 namespace gazebo
@@ -38,7 +39,7 @@ class CollisionMapCreator : public WorldPlugin
     node->Init(world->Name());
     std::cout << "Subscribing to: " << "~/collision_map/command" << std::endl;
     commandSubscriber = node->Subscribe("~/collision_map/command",
-      &CollisionMapCreator::create, this);
+        &CollisionMapCreator::create, this);
     imagePub = node->Advertise<msgs::Image>("~/collision_map/image");
   }
 
@@ -58,20 +59,18 @@ class CollisionMapCreator : public WorldPlugin
 
     double dX_vertical = msg->upperleft().x() - msg->lowerleft().x();
     double dY_vertical = msg->upperleft().y() - msg->lowerleft().y();
-    double mag_vertical =
-      sqrt(dX_vertical * dX_vertical + dY_vertical * dY_vertical);
+    double mag_vertical = hypot(dX_vertical, dY_vertical);
     dX_vertical = msg->resolution() * dX_vertical / mag_vertical;
     dY_vertical = msg->resolution() * dY_vertical / mag_vertical;
 
     double dX_horizontal = msg->upperright().x() - msg->upperleft().x();
     double dY_horizontal = msg->upperright().y() - msg->upperleft().y();
-    double mag_horizontal =
-      sqrt(dX_horizontal * dX_horizontal + dY_horizontal * dY_horizontal);
+    double mag_horizontal = hypot(dX_horizontal, dY_horizontal);
     dX_horizontal = msg->resolution() * dX_horizontal / mag_horizontal;
     dY_horizontal = msg->resolution() * dY_horizontal / mag_horizontal;
 
-    int count_vertical = mag_vertical / msg->resolution();
-    int count_horizontal = mag_horizontal / msg->resolution();
+    int count_vertical = static_cast<int>(mag_vertical / msg->resolution());
+    int count_horizontal = static_cast<int>(mag_horizontal / msg->resolution());
 
     if (count_vertical == 0 || count_horizontal == 0)
     {
@@ -79,33 +78,29 @@ class CollisionMapCreator : public WorldPlugin
                 << std::endl;
       return;
     }
-    double x,y;
 
     boost::gil::gray8_pixel_t fill(255-msg->threshold());
     boost::gil::gray8_pixel_t blank(255);
     boost::gil::gray8_image_t image(count_horizontal, count_vertical);
+    boost::gil::fill_pixels(view(image), blank);
 
-    double dist;
-    std::string entityName;
     ignition::math::Vector3d start, end;
     start.Z(msg->height());
     end.Z(0.001);
 
-    gazebo::physics::PhysicsEnginePtr engine = world->Physics();
+    auto engine = world->Physics();
     engine->InitForThread();
-    gazebo::physics::RayShapePtr ray =
-      boost::dynamic_pointer_cast<gazebo::physics::RayShape>(
-        engine->CreateShape("ray", gazebo::physics::CollisionPtr()));
+    auto ray = boost::dynamic_pointer_cast<physics::RayShape>(
+        engine->CreateShape("ray", physics::CollisionPtr()));
 
     std::cout << "Rasterizing model and checking collisions" << std::endl;
-    boost::gil::fill_pixels(image._view, blank);
 
     for (int i = 0; i < count_vertical; ++i)
     {
       std::cout << "Percent complete: " << i * 100.0 / count_vertical
                 << std::endl;
-      x = i * dX_vertical + msg->lowerleft().x();
-      y = i * dY_vertical + msg->lowerleft().y();
+      double x = i * dX_vertical + msg->lowerleft().x();
+      double y = i * dY_vertical + msg->lowerleft().y();
       for (int j = 0; j < count_horizontal; ++j)
       {
         x += dX_horizontal;
@@ -115,11 +110,14 @@ class CollisionMapCreator : public WorldPlugin
         end.X(x);
         start.Y(y);
         end.Y(y);
+
+        double dist;
+        std::string entityName;
         ray->SetPoints(start, end);
         ray->GetIntersection(dist, entityName);
         if (!entityName.empty())
         {
-          image._view(i,j) = fill;
+          view(image)(j, i) = fill;  // Note: (x=col, y=row)
         }
       }
     }
@@ -127,32 +125,24 @@ class CollisionMapCreator : public WorldPlugin
     std::cout << "Completed calculations, writing to image" << std::endl;
     if (!msg->filename().empty())
     {
-      boost::gil::gray8_view_t view = image._view;
-
-      // Write to png 
-      // boost::gil::png_write_view(msg->filename(), view); 
-      // Write to pgm (pnm p2)
-      pgm_write_view(msg->filename(), view);
+      pgm_write_view(msg->filename(), view(image));
     }
     std::cout << "Output location: " << msg->filename() << std::endl;
   }
 
-  public: void pgm_write_view(const std::string& filename, boost::gil::gray8_view_t& view)
+  public: void pgm_write_view(const std::string& filename, const boost::gil::gray8_view_t& view)
   {
-    // Write image to pgm file
-    std::cout << "running" << std::endl;
     int h = view.height();
     int w = view.width();
 
     std::ofstream ofs;
     ofs.open(filename+".pgm");
-    ofs << "P2" << '\n';          // grayscale
+    ofs << "P2" << '\n';          // grayscale 
     ofs << w << ' ' << h << '\n'; // width and height
     ofs << 255 <<  '\n';          // max value
     for (int y = 0; y < h; ++y){
       for (int x = 0; x < w; ++x){
-        // std::cout << (int)view(x, y)[0];
-        ofs << (int)view(x, y)[0] << ' ';
+        ofs << static_cast<int>(view(x, y)[0]) << ' ';
       }
       ofs << '\n';
     }

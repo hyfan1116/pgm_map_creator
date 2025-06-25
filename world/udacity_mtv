@@ -1,5 +1,6 @@
 <sdf version='1.6'>
   <world name='default'>
+    <plugin filename="libcollision_map_creator.so" name="collision_map_creator"/>
     <light name='sun' type='directional'>
       <cast_shadows>1</cast_shadows>
       <pose frame=''>0 0 10 0 -0 0</pose>
@@ -6459,6 +6460,5 @@
         <projection_type>perspective</projection_type>
       </camera>
     </gui>
-    <plugin filename="libcollision_map_creator.so" name="collision_map_creator"/>
   </world>
 </sdf>
