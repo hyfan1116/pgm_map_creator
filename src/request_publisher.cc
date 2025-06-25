@@ -1,13 +1,13 @@
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <deque>
 #include <sdf/sdf.hh>
 
-#include "gazebo/gazebo.hh"
-#include "gazebo/common/common.hh"
-#include "gazebo/transport/transport.hh"
-#include "gazebo/physics/physics.hh"
-#include "gazebo/msgs/msgs.hh"
+#include <gazebo/gazebo.hh>
+#include <gazebo/common/common.hh>
+#include <gazebo/transport/transport.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/msgs/msgs.hh>
 
 #include "collision_map_request.pb.h"
 #include "vector2d.pb.h"
