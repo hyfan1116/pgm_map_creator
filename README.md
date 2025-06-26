@@ -2,8 +2,22 @@
 
 A Gazebo Classic plugin and ROS utility for generating occupancy `.pgm` maps from a simulated Gazebo world. These maps can be used in ROS localization and navigation pipelines.
 
+## Background
+
+I adapted this repository based on OSRF's [collision_map_creator_plugin](https://github.com/osrf/collision_map_creator_plugin) by Stephen Brawner. It is used in Udacity's Robotics Program with [Udacity's fork](https://github.com/udacity/pgm_map_creator). 
+
+The package seems to have helped numerous roboticists in their work over the years. With ROS 1 going EOL I refreshed it with LLMs' help to ensure it works with Noetic.
+
+If you are looking for ROS 2 option, @arshadlab built [gazebo_map_creator](https://github.com/arshadlab/gazebo_map_creator) with great improvements and documentation for his robotics projects.
+
 ## Environment
-Tested on Ubuntu 20.04, ROS Noetic, Gazebo 11
+Tested on Ubuntu 20.04, ROS Noetic, Gazebo 11.
+
+Easiest way to set up is using OSRF's Noetic docker image: `osrf/ros:noetic-desktop-full`. Need X11 shenanigans to bring up GUI if you need it.
+
+```
+docker run -it --rm --net=host --user $(id -u):$(id -g) --device /dev/dri --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"  --volume="/home/$(id -u):/home/$(id -u):rw"  --name ros_noetic_gazebo osrf/ros:noetic-desktop-full bash
+```
 
 ## Setup
 
